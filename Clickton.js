@@ -110,18 +110,28 @@
   };
 
   // Módulo: AutoBuy
-  AutoPlayer.modules.autoBuy = {
+AutoPlayer.modules.autoBuy = {
   run: () => {
-    // Comprar upgrades disponíveis
+    // Comprar upgrades com alta prioridade
     Game.UpgradesInStore
       .filter(upg => upg.canBuy() && Game.cookies >= upg.getPrice())
+      .sort((a, b) => a.getPrice() - b.getPrice())
       .forEach(upg => upg.buy());
 
-    // Comprar o prédio mais barato disponível
-    const buildings = Object.values(Game.ObjectsById);
-    const affordable = buildings.filter(b => b.getPrice() <= Game.cookies);
-    affordable.sort((a, b) => a.getPrice() - b.getPrice());
-    if (affordable.length > 0) affordable[0].buy();
+    // Comprar edifícios com melhor custo-benefício
+    const buildings = Object.values(Game.ObjectsById)
+      .map(b => ({
+        building: b,
+        efficiency: b.storedCps / b.getPrice() || 0
+      }))
+      .filter(b => b.building.getPrice() <= Game.cookies)
+      .sort((a, b) => b.efficiency - a.efficiency);
+
+    buildings.forEach(b => {
+      if (Game.cookies >= b.building.getPrice()) {
+        b.building.buy();
+      }
+    });
   }
 };
 
