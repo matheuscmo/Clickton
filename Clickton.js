@@ -111,14 +111,20 @@
 
   // Módulo: AutoBuy
   AutoPlayer.modules.autoBuy = {
-    run: () => {
-      const allItems = [...Game.UpgradesInStore, ...Game.ObjectsById];
-      allItems
-        .filter(item => item.unlock && item.getPrice && Game.cookies >= item.getPrice())
-        .sort((a, b) => a.getPrice() - b.getPrice())
-        .forEach(item => item.buy && item.buy());
-    }
-  };
+  run: () => {
+    // Comprar upgrades disponíveis
+    Game.UpgradesInStore
+      .filter(upg => upg.canBuy() && Game.cookies >= upg.getPrice())
+      .forEach(upg => upg.buy());
+
+    // Comprar o prédio mais barato disponível
+    const buildings = Object.values(Game.ObjectsById);
+    const affordable = buildings.filter(b => b.getPrice() <= Game.cookies);
+    affordable.sort((a, b) => a.getPrice() - b.getPrice());
+    if (affordable.length > 0) affordable[0].buy();
+  }
+};
+
 
   // Módulo: AutoGolden
   AutoPlayer.modules.autoGolden = {
