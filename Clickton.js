@@ -103,11 +103,13 @@
   };
 
   // Módulo: AutoClick
-  AutoPlayer.modules.autoClick = {
-    run: () => {
-      for (let i = 0; i < 50; i++) Game.ClickCookie();
+AutoPlayer.modules.autoClick = {
+  run: () => {
+    if (Game.BigCookie && Game.BigCookie.offsetParent !== null) {
+      for (let i = 0; i < 100; i++) Game.ClickCookie();
     }
-  };
+  }
+};
 
   // Módulo: AutoBuy
 AutoPlayer.modules.autoBuy = {
